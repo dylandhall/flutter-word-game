@@ -22,12 +22,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Word Flower 1',
+      title: 'Word Flower',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Word flower'),
+      home: const MyHomePage(title: 'Word Flower'),
     );
   }
 }
@@ -458,7 +458,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
           // actions: [],
-          title: Text(widget.title),
+          title: Row(children: [Text(widget.title), const Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0), child: Image(image: AssetImage('assets/word-flower-image.webp'), height: 32, fit: BoxFit.fitHeight,))]),
         ),
         body: SingleChildScrollView(
           child: Center(

@@ -1,4 +1,4 @@
-# Word soup
+# Word flower
 
 A new Flutter project. I'm just testing the framework out, this is a small game for my partner, based off an old puzzle book she had. I've added scoring to make it more fun.
 
