@@ -1,11 +1,6 @@
-import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:word_flower/played_game.dart';
 import 'package:word_flower/player.dart';
@@ -23,7 +18,7 @@ class MyApp extends StatelessWidget {
   final int state = 0;
 
   @override
-  Widget build(BuildContext contex) {
+  Widget build(BuildContext context) {
     return ValueListenableBuilder<ThemeMode>(
       valueListenable: themeNotifier,
       builder:(buildContext, ThemeMode currentMode, _) =>
@@ -314,12 +309,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           children: getLetterButtonWidgets(theme, _gameState!).toList(),
         ));
 
-    var buttonBackground = theme.floatingActionButtonTheme.backgroundColor;
-    var disabledButtonBackground = theme.floatingActionButtonTheme.backgroundColor?.withOpacity(0.5);
     var buttonColor = theme.floatingActionButtonTheme.foregroundColor ?? theme.colorScheme.primary;
     var disabledButtonColor = (theme.floatingActionButtonTheme.foregroundColor ?? theme.colorScheme.primary).withOpacity(0.5);
 
-    const circleBorder = CircleBorder();
     yield Padding(
         padding: edgeInsets,
         child: Row(
