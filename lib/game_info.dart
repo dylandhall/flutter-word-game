@@ -11,6 +11,7 @@ class GameState {
   final List<String> validWords;
   final List<String> commonWords;
   final PlayedGame playedGame;
+  final int seed;
   bool isReviewed = false;
   final bool isPractice;
 
@@ -40,7 +41,7 @@ class GameState {
     lettersToShow = a.map((l) => l.l).toList();
   }
 
-  GameState.name(this.extraLetters, this.centerLetter, this.validWords, this.commonWords, this.playedGame, this.isPractice);
+  GameState.name(this.extraLetters, this.centerLetter, this.validWords, this.commonWords, this.playedGame, this.isPractice, this.seed);
 
   bool checkLetters(String letters) {
     if (!letters.contains(centerLetter)) return false;
@@ -84,7 +85,7 @@ class GameState {
         allWords.addAll(commonWords);
         validWords = allWords.toList();
 
-        var gameState = GameState.name(existingPg.extraLetters, existingPg.centerLetter, validWords, commonWords, existingPg, isPractice);
+        var gameState = GameState.name(existingPg.extraLetters, existingPg.centerLetter, validWords, commonWords, existingPg, isPractice, seed);
         gameState.shuffleAndSetLetters();
         gameState.obtainedWords.addAll(existingPg.obtainedWords);
         gameState.isReviewed = existingPg.reviewed;
@@ -146,7 +147,7 @@ class GameState {
 
     if (pg.isInBox) pg.save();
 
-    var gameState = GameState.name(otherLetters, centerLetter, validWords, includedCommonWords, pg, isPractice);
+    var gameState = GameState.name(otherLetters, centerLetter, validWords, includedCommonWords, pg, isPractice, seed);
     gameState.shuffleAndSetLetters();
 
     return gameState;

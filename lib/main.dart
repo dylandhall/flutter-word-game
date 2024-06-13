@@ -141,8 +141,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       _player.save();
     }
 
+    await loadGame(getDailySeed(), false);
+  }
+
+  int getDailySeed() {
     final dateSeed = DateTime.now().toUtc();
-    await loadGame((DateTime.utc(dateSeed.year, dateSeed.month, dateSeed.day).millisecondsSinceEpoch/10000).floor(), false);
+    return (DateTime
+        .utc(dateSeed.year, dateSeed.month, dateSeed.day)
+        .millisecondsSinceEpoch / 10000).floor();
   }
 
   Future<void> loadGame(int seed, bool isPractice) async {
@@ -418,6 +424,29 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             },
             child: const Text('Review'),
           );
+
+    var dailySeed = getDailySeed();
+
+    final isCurrentDailyGame = dailySeed == _gameState!.seed;
+
+    yield TextButton(
+      onPressed:
+          isCurrentDailyGame
+            ? null
+            : () async {
+                setState(() {
+                  _isLoading = true;
+                  _pageState = PageState.playing;
+                });
+
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) async {
+                    await loadGame(dailySeed, false);
+                  });
+                });
+              },
+      child: const Text('Today''s game'),
+    );
   }
 
   Iterable<Widget> getLetterButtonWidgets(ThemeData theme, GameState gameState) sync* {
