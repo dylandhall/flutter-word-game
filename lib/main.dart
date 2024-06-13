@@ -342,12 +342,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       : disabledButtonColor),))),
           Padding(
               padding: edgeInsets,
-              child: FloatingActionButton(
+              child: IconButton(
                   onPressed: () => setState((){
                     _gameState?.shuffleAndSetLetters();
                   }),
-                  shape: circleBorder,
-                  child: const Icon(Icons.recycling_rounded))),
+                  icon: const Icon(Icons.recycling_rounded)
+              )
+          ),
           Padding(
               padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
               child: TextButton(
