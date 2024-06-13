@@ -246,7 +246,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     const wordsStyle = TextStyle(fontSize: 16);
     const titleStyle = TextStyle(fontSize: 20);
 
-    yield const Text('How many words can you get?', style: titleStyle,);
+    yield const Padding(padding: EdgeInsets.only(top: 18), child: Text('How many words can you get?', style: titleStyle,));
 
     const edgeInsets = EdgeInsets.all(8.0);
 
@@ -259,9 +259,16 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         padding: edgeInsets,
         child: Text(_gameState?.obtainedWords.join(" — ")??'', style: wordsStyle, textAlign: TextAlign.center),
     );
+
+    var info = (_gameState?.isReviewed??false)
+        ? ' (Finished)'
+        : (_gameState?.isPractice??false)
+          ? ' (Practice)'
+          : '';
+
     yield Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text('Score: ${_gameState?.score?.toString()??'0'} ${(_gameState?.isReviewed??false)? ' (Finished)':''}', style: boldStyle)
+      child: Text('Score: ${_gameState?.score?.toString()??'0'} $info', style: boldStyle)
     );
     //     ]
     // );
