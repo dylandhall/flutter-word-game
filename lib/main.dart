@@ -50,6 +50,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   late final Box<PlayedGame> _box;
   String _lettersToAttempt = '';
   PageState _pageState = PageState.playing;
+  bool _isLoading = true;
 
   _MyHomePageState();
 
@@ -108,8 +109,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     Hive.registerAdapter(PlayedGameAdapter());
     _box = await Hive.openBox<PlayedGame>('gamesBox');
     var dateSeed = DateTime.now().toUtc();
-    var m = dateSeed.year+dateSeed.day+dateSeed.month;
-    await loadGame(m, false);
+    await loadGame((DateTime.utc(dateSeed.year, dateSeed.month, dateSeed.day).millisecondsSinceEpoch/10000).floor(), false);
   }
 
   Future<void> loadGame(int seed, bool isPractice) async {
@@ -118,6 +118,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     setState(() {
       _lettersToAttempt = '';
       _gameState = gs;
+      _isLoading = false;
     });
   }
 
@@ -236,8 +237,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
 
   Iterable<Widget> getAllPlayingWidgets(ThemeData theme) sync* {
-    if (_gameState == null) {
-      yield const Text('loading..');
+    if (_isLoading || _gameState == null) {
+      yield const Padding(padding: EdgeInsets.fromLTRB(0, 80, 0, 0), child: Image(image: AssetImage('assets/word-flower-image.webp'), height: 256, fit: BoxFit.fitHeight,));
       return;
     }
 
@@ -471,8 +472,23 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           ? null
           : FloatingActionButton(
               onPressed: () async {
-                _pageState = PageState.playing;
-                await loadGame(DateTime.now().millisecond, true);
+                setState(() {
+                  _isLoading = true;
+                  _pageState = PageState.playing;
+                });
+
+                // as we're doing the current frame now, this will be run as
+                // soon as it's finished. this frame won't include the loading
+                // screen, so if we init the game after this frame we won't see
+                // the loading screen while it's being created
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  // this will be run after the following frame, which will draw
+                  // the loading screen, so we see the loading screen while the
+                  // new game initialises
+                  WidgetsBinding.instance.addPostFrameCallback((_) async {
+                    await loadGame(DateTime.now().millisecond, true);
+                  });
+                });
               },
               tooltip: 'New practice game',
               child: const Icon(Icons.add),
