@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:word_flower/played_game.dart';
+import 'package:word_flower/player.dart';
 
 import 'game_info.dart';
 
@@ -16,18 +17,29 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  static final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
+
   const MyApp({super.key});
   final int state = 0;
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Word Flower',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Word Flower'),
+  Widget build(BuildContext contex) {
+    return ValueListenableBuilder<ThemeMode>(
+      valueListenable: themeNotifier,
+      builder:(buildContext, ThemeMode currentMode, _) =>
+        MaterialApp(
+          title: 'Word Flower',
+          themeMode: currentMode,
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.green, brightness: Brightness.light),
+            useMaterial3: true
+          ),
+          darkTheme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.green, brightness: Brightness.dark),
+            useMaterial3: true
+          ),
+          home: const MyHomePage(title: 'Word Fucker 3000'),
+      )
     );
   }
 }
@@ -48,9 +60,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   late int _repeatCount = 0;
   late FocusNode _focusNode;
   late final Box<PlayedGame> _box;
+  late final Box<Player> _playerBox;
+  late final Player _player;
   String _lettersToAttempt = '';
   PageState _pageState = PageState.playing;
   bool _isLoading = true;
+  bool _isDarkMode = MyApp.themeNotifier.value == ThemeMode.dark;
 
   _MyHomePageState();
 
@@ -107,8 +122,31 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   void initLoad() async {
     await Hive.initFlutter();
     Hive.registerAdapter(PlayedGameAdapter());
-    _box = await Hive.openBox<PlayedGame>('gamesBox');
-    var dateSeed = DateTime.now().toUtc();
+    Hive.registerAdapter(PlayerAdapter());
+
+    final futures = [
+      Hive.openBox<PlayedGame>('gamesBox'),
+      Hive.openBox<Player>('playerBox'),
+    ];
+
+    final results = await Future.wait(futures);
+
+    _box = results[0] as Box<PlayedGame>;
+    _playerBox = results[1] as Box<Player>;
+
+    if(_playerBox.isNotEmpty){
+      _player = _playerBox.values.first;
+      if (_player.isDarkMode != _isDarkMode){
+        _isDarkMode = _player.isDarkMode;
+        MyApp.themeNotifier.value = _isDarkMode ? ThemeMode.dark : ThemeMode.light;
+      }
+    } else {
+      _player = Player(0, 0, 0, _isDarkMode);
+      _playerBox.add(_player);
+      _player.save();
+    }
+
+    final dateSeed = DateTime.now().toUtc();
     await loadGame((DateTime.utc(dateSeed.year, dateSeed.month, dateSeed.day).millisecondsSinceEpoch/10000).floor(), false);
   }
 
@@ -214,7 +252,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: 200,
           mainAxisSpacing: 2,
-          childAspectRatio: 5,
+          childAspectRatio: 8,
           crossAxisSpacing: 2,
         ),
         itemBuilder: (context, index) {
@@ -249,11 +287,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     yield const Padding(padding: EdgeInsets.only(top: 18), child: Text('How many words can you get?', style: titleStyle,));
 
     const edgeInsets = EdgeInsets.all(8.0);
-
-    // yield Row(
-    //     crossAxisAlignment: CrossAxisAlignment.center,
-    //     mainAxisAlignment: MainAxisAlignment.center,
-    //     children: [
 
     yield Padding(
         padding: edgeInsets,
@@ -459,7 +492,17 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          // actions: [],
+          actions: [
+            Switch(
+              value: _isDarkMode,
+              onChanged: (value) {
+                MyApp.themeNotifier.value = value ? ThemeMode.dark : ThemeMode.light;
+                _isDarkMode = value;
+                _player.isDarkMode = value;
+                _player.save();
+              },
+            ),
+          ],
           title: Row(children: [Text(widget.title), const Padding(padding: EdgeInsets.fromLTRB(20, 0, 0, 0), child: Image(image: AssetImage('assets/word-flower-image.webp'), height: 32, fit: BoxFit.fitHeight,))]),
         ),
         body: SingleChildScrollView(
