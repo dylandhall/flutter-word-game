@@ -1,11 +1,11 @@
 {
-    "name": "word_flower",
-    "short_name": "word_flower",
+    "name": "Word Flower",
+    "short_name": "Word Flower",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "A simple little word game",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

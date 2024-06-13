@@ -317,18 +317,11 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             ),
             Padding(
                 padding: const EdgeInsets.all(2),
-                child: FloatingActionButton(
-                  shape: circleBorder,
-                  backgroundColor: _lettersToAttempt.isNotEmpty
-                      ? buttonBackground
-                      : disabledButtonBackground,
-                  foregroundColor: _lettersToAttempt.isNotEmpty
-                      ? buttonColor
-                      : disabledButtonColor,
+                child: IconButton(
                   onPressed: _lettersToAttempt.isNotEmpty
                       ? () => setState(() { _lettersToAttempt = _lettersToAttempt.substring(0, _lettersToAttempt.length - 1); })
                       : null,
-                  child: const Icon(Icons.backspace),
+                  icon: const Icon(Icons.backspace),
                 )),
         ])
     );
