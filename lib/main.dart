@@ -227,13 +227,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         padding: EdgeInsets.all(12),
         child: Text("Common words (included in max score)", style: big,));
 
-    yield getGridView(commonWords, _gameState!.obtainedWords);
+    yield getGridView(commonWords, _gameState!.obtainedWords, _isDarkMode);
 
     yield const Padding(
         padding: EdgeInsets.fromLTRB(12, 50, 12, 12),
         child: Text("Uncommon words", style: big,));
 
-    yield getGridView(uncommonWords, _gameState!.obtainedWords);
+    yield getGridView(uncommonWords, _gameState!.obtainedWords, _isDarkMode);
 
     yield Padding(
         padding: const EdgeInsets.all(20),
@@ -244,7 +244,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   }
 
-  static GridView getGridView(List<String> allWords, List<String> obtainedWords) {
+  static GridView getGridView(List<String> allWords, List<String> obtainedWords, bool isDarkMode) {
     return GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
@@ -252,7 +252,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: 200,
           mainAxisSpacing: 2,
-          childAspectRatio: 8,
+          childAspectRatio: 6,
           crossAxisSpacing: 2,
         ),
         itemBuilder: (context, index) {
@@ -264,7 +264,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                             isFound
                               ? CupertinoIcons.checkmark_seal_fill
                               : CupertinoIcons.xmark_seal_fill,
-                        color: isFound ? Colors.green : Colors.black,
+                        color: isFound ? Colors.green : isDarkMode ? Colors.white30 : Colors.black38,
                         ),
                         title: Text(allWords[index]),
             ),
