@@ -22,7 +22,6 @@ class GameState {
     isReviewed = true;
     if (!playedGame.reviewed && playedGame.isInBox){
       playedGame.reviewed = true;
-      print('saving reviewed state');
       playedGame.save();
     }
   }
@@ -48,10 +47,7 @@ class GameState {
     if (validWords.contains(letters) && !obtainedWords.contains(letters)){
       obtainedWords.add(letters);
       playedGame.obtainedWords = obtainedWords;
-      //if (playedGame.isInBox) {
-      print('saving words obtained');
       playedGame.save();
-      //}
       return true;
     }
     return false;
@@ -64,8 +60,6 @@ class GameState {
     const practiceGameKey = 101;
 
     if (box?.isNotEmpty??false) {
-      print('box has values');
-
       // clean out old games so we don't have too many
       if (box!.length>10){
         var cutoff = DateTime.now().subtract(const Duration(days: 7));
@@ -81,8 +75,6 @@ class GameState {
           : box.get(seed);
 
       if (existingPg != null && ((isPractice && !existingPg.reviewed) || existingPg.seed == seed)) {
-
-        print('loading existing game');
         var largeDictionary = await largeDictionaryFuture;
 
         var commonWords = getMatchingWords(commonDictionary.words, existingPg.extraLetters, existingPg.centerLetter);
