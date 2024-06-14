@@ -75,9 +75,10 @@ jobs:
         name: windows-binary
         path: ${{ runner.temp }}\windows-build.zip
 
-  release:
+  attach-release:
     runs-on: ubuntu-latest
-    needs: [windows-build, build]
+    needs: [windows-build, android-build]
+    if: github.event_name == 'release' && github.event.action == 'published'
 
     steps:
     - name: Download Windows build artifact
@@ -92,7 +93,7 @@ jobs:
         name: android-apk
         path: ./release/android
 
-   - name: Get the latest release
+    - name: Get the latest release
       id: get_release
       uses: actions/github-script@v6
       with:
@@ -102,9 +103,10 @@ jobs:
             owner: context.repo.owner,
             repo: context.repo.repo
           });
-          return latestRelease.tag_name;
+          return latestRelease;
 
     - name: Upload artifacts to release
+      id: upload_artifacts
       uses: ncipollo/release-action@v1
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -112,3 +114,6 @@ jobs:
         tag: ${{ steps.get_release.outputs.tag_name }}
         name: ${{ steps.get_release.outputs.name }}
         body: ${{ steps.get_release.outputs.body }}
+        update_only_unreleased: true
+        remove_artifacts: true
+        replaces_artifacts: true
