@@ -64,7 +64,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: windows-binary
-        path: ${{ env.RUNNER_TEMP }}\windows-build.zip
+        path: ${{ runner.temp }}\windows-build.zip
 
   android-build:
     runs-on: ubuntu-latest
