@@ -531,10 +531,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       if (!gameState.isValidToAttempt) return;
       var res = gameState.attemptLetters();
       if (res) return;
-      // animate the shake of the input fields
-      _repeatCount = 0; // Reset the repeat count before starting the animation
-      _controller.reset();
-      _controller.forward();
+      setState(() {
+        // animate the shake of the input fields
+        _repeatCount = 0; // Reset the repeat count before starting the animation
+        _controller.reset();
+        _controller.forward();
+      });
       return;
     }
     if (k.logicalKey == LogicalKeyboardKey.backspace) {
