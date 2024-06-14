@@ -81,6 +81,10 @@ jobs:
     if: github.event_name == 'release' && github.event.action == 'published'
 
     steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    steps:
     - name: Download Windows build artifact
       uses: actions/download-artifact@v4
       with:
