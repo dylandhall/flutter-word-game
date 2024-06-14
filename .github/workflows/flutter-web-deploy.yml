@@ -114,6 +114,4 @@ jobs:
         tag: ${{ steps.get_release.outputs.tag_name }}
         name: ${{ steps.get_release.outputs.name }}
         body: ${{ steps.get_release.outputs.body }}
-        update_only_unreleased: true
-        remove_artifacts: true
         replaces_artifacts: true
