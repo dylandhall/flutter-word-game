@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - main  # Change this to your default branch if it's different
-
+  release:
+    types: [published]
+    
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -31,12 +33,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: build/web
 
-on:
-  push:
-    branches: [ main ]
-
-jobs:
-  build:
+  windows-build:
     runs-on: windows-latest
     
     steps:
