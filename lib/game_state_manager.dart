@@ -126,8 +126,6 @@ class GameStateManager extends ChangeNotifier {
     MyApp.themeNotifier.addListener(themeSave);
 
     await loadDailyGame();
-
-    print('init load, notifying');
     notifyListeners();
   }
 
