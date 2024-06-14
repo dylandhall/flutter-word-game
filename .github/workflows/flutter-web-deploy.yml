@@ -1,12 +1,9 @@
 name: Build and Deploy Flutter App
 
-on:
+on: 
   push:
-    branches:
-      - main  # Change this to your default branch if it's different
-  tag:
-    types: [published]
-
+    tags:
+      - '*'  # Trigger release job on any tag push
 jobs:
   build:
     runs-on: ubuntu-latest
