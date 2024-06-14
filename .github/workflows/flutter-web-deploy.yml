@@ -31,3 +31,31 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: build/web
 
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.22.2' # Set this to the desired Flutter version
+    - name: Install dependencies
+      run: flutter pub get
+    - name: Build Windows binary
+      run: flutter build windows --release
+    - name: Compress build output
+      run: Compress-Archive -Path $env:GITHUB_WORKSPACE\build\windows\runner\Release\* -DestinationPath $env:RUNNER_TEMP\build.zip
+      shell: powershell
+      env:
+        RUNNER_TEMP: ${{ runner.temp }}
+        GITHUB_WORKSPACE: ${{ github.workspace }}
+    - name: Publish binaries
+      run: gh release upload '1.0.12' "${{ env.RUNNER_TEMP }}\\build.zip" --clobber
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RUNNER_TEMP: ${{ runner.temp }}
+
