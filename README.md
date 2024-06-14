@@ -22,6 +22,8 @@ Eventually you'll be able to review previous days, the data is there but I haven
 
 Pretty simple, you just make as many words as you can with the letters provided. They need to be four or more letters, and the center letter MUST be used.
 
+You get a point per letter - the max score is based on common words, but you can score points with uncommon words as well, they're just not in the stated maximum score. I didn't want people to be discouraged if they couldn't get close to the maximum score and some of the words in the larger dictionaries are esoteric to say the least.
+
 There is at least one word that has every letter.
 
 Good luck!
