@@ -302,7 +302,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
     yield Padding(
       padding: const EdgeInsets.all(8.0),
-      child: Text('Score: ${_gameState?.score?.toString()??'0'} $info', style: boldStyle)
+      child: Text('Score: ${_gameState?.score?.toString()??'0'} of a possible ${(_gameState?.possibleScore??0)} $info', style: boldStyle)
     );
     //     ]
     // );
