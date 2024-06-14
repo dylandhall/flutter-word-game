@@ -368,8 +368,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           builder: (BuildContext context) =>
               AlertDialog(
                 title: const Text('Review?'),
-                content: const Text(
-                    'This will finish the game and let you review the words'),
+                content: const Text('This will finish the game and let you review the words'),
                 actions: <Widget>[
                   TextButton(
                     onPressed: () => Navigator.pop(context, 'Cancel'),
@@ -501,8 +500,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                     builder: (bc, _) => Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: getWidgetsForPage(_pageState, widget.gameStateManager, Theme.of(context))
-                  )),
+                  )
                 ),
+              ),
             ),
             floatingActionButton:
               ListenableBuilder(
@@ -547,6 +547,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     gameState.pressLetter(k.character!.toLowerCase());
   }
 }
+
 enum PageState {
   playing,
   reviewing,
