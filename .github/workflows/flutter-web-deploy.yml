@@ -1,9 +1,11 @@
 name: Build and Deploy Flutter App
 
-on: 
+on:
   push:
-    tags:
-    - '*'
+    branches:
+      - main  # Change this to your default branch if it's different
+  tag:
+    types: [published]
 
 jobs:
   build:
