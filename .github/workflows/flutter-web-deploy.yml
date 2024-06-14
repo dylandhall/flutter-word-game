@@ -43,8 +43,8 @@ jobs:
         flutter-version: '3.22.2' # Set this to the desired Flutter version
 
     - name: Install dependencies
-      run: flutter pub get -C $env:GITHUB_WORKSPACE
-      shell: powershell
+      run: flutter pub get
+      shell: pwsh
       working-directory: ${{ github.workspace }}
 
     - name: Build Windows binary
