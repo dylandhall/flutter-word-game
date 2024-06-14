@@ -224,15 +224,23 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           child: const Text('Back to game..'),
         ));
 
-    yield const Padding(
-        padding: EdgeInsets.all(12),
-        child: Text("Common words (included in max score)", style: big,));
+    final commonPercent =
+      ((commonWords.where((w) => _gameState!.obtainedWords.contains(w)).length)
+          / (commonWords.length) * 100).round();
+
+    yield Padding(
+        padding: const EdgeInsets.all(12),
+        child: Text("Common words (included in max score) - $commonPercent%", style: big,));
 
     yield getGridView(commonWords, _gameState!.obtainedWords, _isDarkMode);
 
-    yield const Padding(
-        padding: EdgeInsets.fromLTRB(12, 50, 12, 12),
-        child: Text("Uncommon words", style: big,));
+    final uncommonPercent =
+    ((uncommonWords.where((w) => _gameState!.obtainedWords.contains(w)).length)
+        / uncommonWords.length * 100).round();
+
+    yield Padding(
+        padding: const EdgeInsets.fromLTRB(12, 50, 12, 12),
+        child: Text("Uncommon words - $uncommonPercent%", style: big,));
 
     yield getGridView(uncommonWords, _gameState!.obtainedWords, _isDarkMode);
 
