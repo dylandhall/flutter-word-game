@@ -126,7 +126,7 @@ class Game {
         } while (otherLetters[index] == centerLetter || (index > 0 && prevLetters.contains(otherLetters[index])));
       }
       includedCommonWords = getMatchingWords(commonDictionary.words, otherLetters, centerLetter);
-    } while (includedCommonWords.length < 100
+    } while (includedCommonWords.length < 20
       //|| otherLetters.any((l) => !includedCommonWords.any((w) => w.contains(l))) // all letters used
       || !includedCommonWords.any((w) => w.contains(centerLetter) && !otherLetters.any((l) => !w.contains(l))) // at least one word with all letters
     );
