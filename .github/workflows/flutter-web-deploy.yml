@@ -105,13 +105,25 @@ jobs:
           });
           return latestRelease;
 
-    - name: Upload artifacts to release
-      id: upload_artifacts
-      uses: ncipollo/release-action@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        artifacts: ./release/windows/windows-build.zip, ./release/android/app-release.apk
-        tag: ${{ steps.get_release.outputs.tag_name }}
-        name: ${{ steps.get_release.outputs.name }}
-        body: ${{ steps.get_release.outputs.body }}
-        replaces_artifacts: true
+    - name: Publish Windows build
+      run: gh release upload '${{ github.ref_name }}' "${{ env.RUNNER_TEMP }}/release/windows/windows-build.zip" --clobber
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RUNNER_TEMP: ${{ runner.temp }}
+
+    - name: Publish Android APK
+      run: gh release upload '${{ github.ref_name }}' "${{ env.RUNNER_TEMP }}/release/android/app-release.apk" --clobber
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        RUNNER_TEMP: ${{ runner.temp }}
+        
+        
+    - name: Publish Windows build try 2
+      run: gh release upload "${{ github.ref_name }}" "./release/windows/windows-build.zip" --clobber
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Publish Android APK try 2
+      run: gh release upload "${{ github.ref_name }}" "./release/android/app-release.apk" --clobber
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
