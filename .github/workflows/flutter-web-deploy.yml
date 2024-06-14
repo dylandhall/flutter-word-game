@@ -13,7 +13,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
@@ -28,7 +28,7 @@ jobs:
 
     - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/main'
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: build/web
@@ -38,7 +38,7 @@ jobs:
 
     steps:    
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
@@ -61,7 +61,7 @@ jobs:
         GITHUB_WORKSPACE: ${{ github.workspace }}
 
     - name: Upload Windows build artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: windows-binary
         path: ${{ env.RUNNER_TEMP }}\windows-build.zip
@@ -72,7 +72,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
@@ -88,7 +88,7 @@ jobs:
       working-directory: ${{ github.workspace }}
 
     - name: Upload Android APK
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: android-apk
         path: build/app/outputs/flutter-apk/app-release.apk
@@ -100,13 +100,13 @@ jobs:
 
     steps:
     - name: Download Windows build artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
         name: windows-binary
         path: ./release/windows
 
     - name: Download Android APK artifact
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
         name: android-apk
         path: ./release/android
