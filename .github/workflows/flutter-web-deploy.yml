@@ -120,7 +120,7 @@ jobs:
             owner: context.repo.owner,
             repo: context.repo.repo
           });
-          return latestRelease;
+          return latestRelease.tag_name;
 
     - name: Upload artifacts to release
       id: upload_artifacts
@@ -129,7 +129,5 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: ./release/windows/windows-build.zip, ./release/android/app-release.apk
         tag: ${{ steps.get_release.outputs.tag_name }}
-        update_only_unreleased: false
-        remove_artifacts: true
-        replaces_artifacts: true
-        
+        removeArtifacts: true
+        replacesArtifacts: true
