@@ -402,8 +402,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     );
   }
 
-  Iterable<Widget> getLetterButtonWidgets(ThemeData theme,
-      GameStateManager gameState) sync* {
+  Iterable<Widget> getLetterButtonWidgets(ThemeData theme, GameStateManager gameState) sync* {
     const edgeInsets = EdgeInsets.all(4.0);
     const circleBorder = CircleBorder();
 
@@ -529,7 +528,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     if (k is! KeyDownEvent) return;
     final gameState = widget.gameStateManager;
     if (k.logicalKey == LogicalKeyboardKey.enter) {
-      gameState.attemptLetters();
+      if (!gameState.isValidToAttempt) return;
+      var res = gameState.attemptLetters();
+      if (res) return;
+      // animate the shake of the input fields
+      _repeatCount = 0; // Reset the repeat count before starting the animation
+      _controller.reset();
+      _controller.forward();
       return;
     }
     if (k.logicalKey == LogicalKeyboardKey.backspace) {

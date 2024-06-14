@@ -153,8 +153,10 @@ class GameStateManager extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool get isValidToAttempt => ((lettersToAttempt.length) > 3 && !(_gameState?.isReviewed??false));
+
   bool attemptLetters() {
-    if ((lettersToAttempt.length) < 4 || (_gameState?.isReviewed??false)) return false;
+    if (!isValidToAttempt) return false;
     if ((_gameState?.checkLetters(lettersToAttempt) ?? false)) {
       lettersToAttempt = '';
       notifyListeners();
