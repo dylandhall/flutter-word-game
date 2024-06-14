@@ -55,13 +55,13 @@ jobs:
 
     - name: Compress build output
       run: |
-        powershell Compress-Archive -Path $env:GITHUB_WORKSPACE\build\windows\x64\runner\Release\* -DestinationPath $env:RUNNER_TEMP\build.zip
+        powershell Compress-Archive -Path $env:GITHUB_WORKSPACE\build\windows\x64\runner\Release\* -DestinationPath $env:RUNNER_TEMP\windows-build.zip
       env:
         RUNNER_TEMP: ${{ runner.temp }}
         GITHUB_WORKSPACE: ${{ github.workspace }}
   
     - name: Publish binaries
-      run: gh release upload '1.0.12' "${{ env.RUNNER_TEMP }}\\build.zip" --clobber
+      run: gh release upload '1.0.12' "${{ env.RUNNER_TEMP }}\\windows-build.zip" --clobber
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         RUNNER_TEMP: ${{ runner.temp }}
