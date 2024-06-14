@@ -92,7 +92,6 @@ jobs:
         name: android-apk
         path: ./release/android
 
-    steps:
     - name: Get the latest release
       id: get_release
       uses: actions/github-script@v6
