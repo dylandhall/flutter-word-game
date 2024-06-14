@@ -201,7 +201,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       physics: const NeverScrollableScrollPhysics(),
       itemCount: allWords.length,
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 200,
+        maxCrossAxisExtent: 230,
         mainAxisSpacing: 2,
         childAspectRatio: 6,
         crossAxisSpacing: 2,
