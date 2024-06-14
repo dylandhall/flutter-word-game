@@ -29,3 +29,4 @@ There is a new daily game in UTC time. It's not hosted on a server but I use a d
 It will remember your progress, and you can review it. Once reviewed you can't keep playing, but you can make a practice game. It'll remember the practice game you're doing and save your progress, once you've reviewed it you can make another one.
 
 Eventually you'll be able to review previous days, the data is there but I haven't added it yet.
+ 
