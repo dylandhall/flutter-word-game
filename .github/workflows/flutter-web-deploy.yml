@@ -96,7 +96,6 @@ jobs:
   attach-release:
     runs-on: ubuntu-latest
     needs: [windows-build, android-build]
-    if: github.event_name == 'release' && github.event.action == 'published'
 
     steps:
     - name: Download Windows build artifact
@@ -130,8 +129,6 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         artifacts: ./release/windows/windows-build.zip, ./release/android/app-release.apk
         tag: ${{ steps.get_release.outputs.tag_name }}
-        name: ${{ steps.get_release.outputs.name }}
-        body: ${{ steps.get_release.outputs.body }}
-        update_only_unreleased: true
+        update_only_unreleased: false
         remove_artifacts: true
         replaces_artifacts: true
