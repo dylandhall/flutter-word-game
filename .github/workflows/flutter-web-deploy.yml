@@ -69,7 +69,7 @@ jobs:
         RUNNER_TEMP: ${{ runner.temp }}
         GITHUB_WORKSPACE: ${{ github.workspace }}
 
-    - name: Upload Windows build artifact
+    - name: Upload Windows build artifact 
       uses: actions/upload-artifact@v4
       with:
         name: windows-binary
@@ -106,24 +106,11 @@ jobs:
           return latestRelease;
 
     - name: Publish Windows build
-      run: gh release upload '${{ github.ref_name }}' "${{ env.RUNNER_TEMP }}/release/windows/windows-build.zip" --clobber
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        RUNNER_TEMP: ${{ runner.temp }}
-
-    - name: Publish Android APK
-      run: gh release upload '${{ github.ref_name }}' "${{ env.RUNNER_TEMP }}/release/android/app-release.apk" --clobber
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        RUNNER_TEMP: ${{ runner.temp }}
-        
-        
-    - name: Publish Windows build try 2
       run: gh release upload "${{ github.ref_name }}" "./release/windows/windows-build.zip" --clobber
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Publish Android APK try 2
+    - name: Publish Android APK
       run: gh release upload "${{ github.ref_name }}" "./release/android/app-release.apk" --clobber
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
