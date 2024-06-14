@@ -55,7 +55,7 @@ jobs:
 
     - name: Compress build output
       run: |
-        powershell Compress-Archive -Path $env:GITHUB_WORKSPACE\\build\\windows\\runner\\Release\\* -DestinationPath $env:RUNNER_TEMP\\build.zip
+        powershell Compress-Archive -Path $env:GITHUB_WORKSPACE\build\windows\x64\runner\Release\* -DestinationPath $env:RUNNER_TEMP\build.zip
       env:
         RUNNER_TEMP: ${{ runner.temp }}
         GITHUB_WORKSPACE: ${{ github.workspace }}
