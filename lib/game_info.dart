@@ -15,9 +15,11 @@ class GameState {
   bool isReviewed = false;
   final bool isPractice;
 
+  // can be reordered/reset
   List<String> lettersToShow = List.empty();
-
   final List<String> obtainedWords = List.empty(growable: true);
+
+  GameState.name(this.extraLetters, this.centerLetter, this.validWords, this.commonWords, this.playedGame, this.isPractice, this.seed);
 
   setAsReviewed(){
     isReviewed = true;
@@ -26,10 +28,10 @@ class GameState {
       playedGame.save();
     }
   }
-
   get score => obtainedWords.isNotEmpty
     ? obtainedWords.map((w) => w.length).reduce((acc,v) => acc+v)
     : 0;
+
   get possibleScore => commonWords.isNotEmpty
     ? commonWords.map((w) => w.length).reduce((acc,v) => acc+v)
     : 0;
@@ -40,8 +42,6 @@ class GameState {
     a.sort((a,b) => a.v.compareTo(b.v));
     lettersToShow = a.map((l) => l.l).toList();
   }
-
-  GameState.name(this.extraLetters, this.centerLetter, this.validWords, this.commonWords, this.playedGame, this.isPractice, this.seed);
 
   bool checkLetters(String letters) {
     if (!letters.contains(centerLetter)) return false;
