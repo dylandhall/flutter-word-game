@@ -4,11 +4,11 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:word_flower/played_game.dart';
 import 'package:word_flower/player.dart';
 
-import 'game_info.dart';
+import 'game.dart';
 import 'main.dart';
 
 class GameStateManager extends ChangeNotifier {
-  GameState? _gameState;
+  Game? _gameState;
   late final Box<PlayedGame> _box;
   late final Box<Player> _playerBox;
   late final Player _player;
@@ -88,7 +88,7 @@ class GameStateManager extends ChangeNotifier {
     }
 
     lettersToAttempt = '';
-    _gameState = await GameState.createGame(seed, _box, isPractice);
+    _gameState = await Game.createGame(seed, _box, isPractice);
 
     isLoading = false;
 

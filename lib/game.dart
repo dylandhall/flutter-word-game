@@ -5,7 +5,7 @@ import 'package:word_flower/played_game.dart';
 import 'dart:math';
 import 'package:word_flower/rng.dart';
 
-class GameState {
+class Game {
   final List<String> extraLetters;
   final String centerLetter;
   final List<String> validWords;
@@ -19,7 +19,7 @@ class GameState {
   List<String> lettersToShow = List.empty();
   final List<String> obtainedWords = List.empty(growable: true);
 
-  GameState.name(this.extraLetters, this.centerLetter, this.validWords, this.commonWords, this.playedGame, this.isPractice, this.seed);
+  Game.name(this.extraLetters, this.centerLetter, this.validWords, this.commonWords, this.playedGame, this.isPractice, this.seed);
 
   setAsReviewed(){
     isReviewed = true;
@@ -54,7 +54,7 @@ class GameState {
     return false;
   }
 
-  static Future<GameState> createGame(int seed, Box<PlayedGame>? box, bool isPractice) async {
+  static Future<Game> createGame(int seed, Box<PlayedGame>? box, bool isPractice) async {
     var largeDictionaryFuture = StoredDictionary.createDictionary('assets/uncommon-long-words.txt');
     var commonDictionary = await StoredDictionary.createDictionary('assets/common-long-words.txt');
 
@@ -85,7 +85,7 @@ class GameState {
         allWords.addAll(commonWords);
         validWords = allWords.toList();
 
-        var gameState = GameState.name(existingPg.extraLetters, existingPg.centerLetter, validWords, commonWords, existingPg, isPractice, seed);
+        var gameState = Game.name(existingPg.extraLetters, existingPg.centerLetter, validWords, commonWords, existingPg, isPractice, seed);
         gameState.shuffleAndSetLetters();
         gameState.obtainedWords.addAll(existingPg.obtainedWords);
         gameState.isReviewed = existingPg.reviewed;
@@ -101,18 +101,15 @@ class GameState {
 
     var vowels = ['a', 'e', 'i', 'o', 'u'];
 
-    var letterCounts = {for (var l in letters) l: commonDictionary.words.expand((c) => c.split('')).where((c) => c == l).length};
-
-    var orderedLetters = letterCounts.entries.toList();
-
-    orderedLetters.sort((a, b) => b.value.compareTo(a.value));
+    // previously selected central letters which were more common
+    // requiring a number of valid words and at least one with all letters
+    // makes this unneeded
 
     var centerLetter = '';
     var otherLetters = List.filled(6, 'a');
     var includedCommonWords = List<String>.empty();
     do {
-      centerLetter = orderedLetters[((r.nextDouble() - 0.5).abs() * 26)
-          .toInt()].key;
+      centerLetter = letters[(r.nextDouble() * 25).round()];
 
       otherLetters = List.filled(6, 'a');
 
@@ -129,7 +126,7 @@ class GameState {
         } while (otherLetters[index] == centerLetter || (index > 0 && prevLetters.contains(otherLetters[index])));
       }
       includedCommonWords = getMatchingWords(commonDictionary.words, otherLetters, centerLetter);
-    } while (includedCommonWords.length < 8
+    } while (includedCommonWords.length < 100
       //|| otherLetters.any((l) => !includedCommonWords.any((w) => w.contains(l))) // all letters used
       || !includedCommonWords.any((w) => w.contains(centerLetter) && !otherLetters.any((l) => !w.contains(l))) // at least one word with all letters
     );
@@ -147,7 +144,7 @@ class GameState {
 
     if (pg.isInBox) pg.save();
 
-    var gameState = GameState.name(otherLetters, centerLetter, validWords, includedCommonWords, pg, isPractice, seed);
+    var gameState = Game.name(otherLetters, centerLetter, validWords, includedCommonWords, pg, isPractice, seed);
     gameState.shuffleAndSetLetters();
 
     return gameState;
