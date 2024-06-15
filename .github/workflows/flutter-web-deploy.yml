@@ -3,7 +3,7 @@ name: Build and Deploy Flutter App
 on:
   push:
     branches:
-      - main  # Change this to your default branch if it's different
+      - [main, sign-android-build] # Change this to your default branch if it's different
   release:
     types: [published]
 
@@ -34,6 +34,22 @@ jobs:
 
     - name: Build Android APK
       run: flutter build apk --release
+
+    - name: Decode keystore file
+      run: echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > android/keystore/key.jks
+
+    - name: Sign the APK
+      run: |
+        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore keystore/key.jks \
+        -storepass ${{ secrets.KEY_PASSWORD }} -keypass ${{ secrets.KEY_PASSWORD }} \
+        -storetype pkcs12 \
+        build/app/outputs/flutter-apk/app-release-unsigned.apk ${{ secrets.KEY_ALIAS }}
+
+    - name: Verify the signature
+      run: jarsigner -verify build/app/outputs/flutter-apk/app-release-unsigned.apk
+
+    - name: Align the APK
+      run: ${ANDROID_HOME}/build-tools/29.0.2/zipalign -v 4 build/app/outputs/flutter-apk/app-release-unsigned.apk build/app/outputs/flutter-apk/app-release.apk
 
     - name: Upload Android APK
       uses: actions/upload-artifact@v4
