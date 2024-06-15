@@ -2,7 +2,8 @@ name: Build and Deploy Flutter App
 
 on:
   push:
-    branches: [main, sign-android-build] # Change this to your default branch if it's different
+    branches:
+     - main
   release:
     types: [published]
 
@@ -17,7 +18,7 @@ jobs:
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
-        flutter-version: '3.22.2' # Set this to the desired Flutter version
+        flutter-version: '3.22.2'
 
     - name: Install dependencies
       run: flutter pub get
