@@ -48,7 +48,7 @@ android {
             keyAlias System.getenv("KEY_ALIAS")
             keyPassword System.getenv("KEY_PASSWORD")
             storeFile file("${rootProject.projectDir}/keystore/au-id-dylan-wordflower.jks")
-            storePassword System.getenv("STORE_PASSWORD")
+            storePassword System.getenv("KEY_PASSWORD")
         }
     }
     buildTypes {

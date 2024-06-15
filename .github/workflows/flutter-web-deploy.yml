@@ -31,24 +31,14 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: build/web
 
-    - name: Build Android APK
-      run: flutter build apk --release
-
     - name: Decode keystore file
-      run: echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > android/keystore/key.jks
+      run: echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > android/keystore/au-id-dylan-wordflower.jks
 
-    - name: Sign the APK
-      run: |
-        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore keystore/key.jks \
-        -storepass ${{ secrets.KEY_PASSWORD }} -keypass ${{ secrets.KEY_PASSWORD }} \
-        -storetype pkcs12 \
-        build/app/outputs/flutter-apk/app-release-unsigned.apk ${{ secrets.KEY_ALIAS }}
-
-    - name: Verify the signature
-      run: jarsigner -verify build/app/outputs/flutter-apk/app-release-unsigned.apk
-
-    - name: Align the APK
-      run: ${ANDROID_HOME}/build-tools/29.0.2/zipalign -v 4 build/app/outputs/flutter-apk/app-release-unsigned.apk build/app/outputs/flutter-apk/app-release.apk
+    - name: Build signed Android APK
+      env:
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      run: flutter build apk --release
 
     - name: Upload Android APK
       uses: actions/upload-artifact@v4
