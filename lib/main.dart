@@ -95,8 +95,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         parent: _controller,
         curve: Curves.easeInOut,
       ),
-    )
-      ..addStatusListener(statusListener);
+    )..addStatusListener(statusListener);
 
     MyApp.themeNotifier.addListener(themeUpdate);
     _isDarkMode = MyApp.themeNotifier.value == ThemeMode.dark;
@@ -247,7 +246,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
     yield Padding(
       padding: edgeInsets,
-      child: Text(gameState.obtainedWords.join(" — ") ?? '', style: wordsStyle,
+      child: Text(gameState.obtainedWords.join(" — "), style: wordsStyle,
           textAlign: TextAlign.center),
     );
 
@@ -317,8 +316,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
             ])
     );
 
-    var validToCheck = !gameState.isReviewed &&
-        gameState.lettersToAttempt.length > 3;
     yield Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -346,8 +343,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
           Padding(
               padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
               child: TextButton(
-                  onPressed: validToCheck ? gameState.attemptLetters : null,
-                  child: Text('Check', style: TextStyle(color: (validToCheck
+                  onPressed: gameState.isValidToAttempt ? (){ attemptLettersAndAnimate(gameState); } : null,
+                  child: Text('Check', style: TextStyle(color: (gameState.isValidToAttempt
                       ? buttonColor
                       : disabledButtonColor)),)
               )
@@ -528,15 +525,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     if (k is! KeyDownEvent) return;
     final gameState = widget.gameStateManager;
     if (k.logicalKey == LogicalKeyboardKey.enter) {
-      if (!gameState.isValidToAttempt) return;
-      var res = gameState.attemptLetters();
-      if (res) return;
-      setState(() {
-        // animate the shake of the input fields
-        _repeatCount = 0; // Reset the repeat count before starting the animation
-        _controller.reset();
-        _controller.forward();
-      });
+      attemptLettersAndAnimate(gameState);
       return;
     }
     if (k.logicalKey == LogicalKeyboardKey.backspace) {
@@ -547,6 +536,18 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       return;
     }
     gameState.pressLetter(k.character!.toLowerCase());
+  }
+
+  void attemptLettersAndAnimate(GameStateManager gameState) {
+    if (!gameState.isValidToAttempt) return;
+    var res = gameState.attemptLetters();
+    if (res) return;
+    setState(() {
+      // animate the shake of the input fields
+      _repeatCount = 0; // Reset the repeat count before starting the animation
+      _controller.reset();
+      _controller.forward();
+    });
   }
 }
 
