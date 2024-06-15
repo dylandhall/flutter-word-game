@@ -2,7 +2,7 @@
 
 ## Try it, compiled for web!
 
-Click [here](https://dylandhall.github.io/wordflower_web/) to play the game. It's actually super fun.
+Click [here](https://dylandhall.github.io/flutter-word-game/) to play the game. It's actually super fun.
 
 ### Introduction
 
