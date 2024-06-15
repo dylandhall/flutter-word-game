@@ -32,7 +32,7 @@ jobs:
         publish_dir: build/web
 
     - name: Decode keystore file
-      run: echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > android/keystore/au-id-dylan-wordflower.jks
+      run: echo ${{ secrets.KEYSTORE_BASE64 }} | base64 --decode > android/au-id-dylan-wordflower.jks
 
     - name: Build signed Android APK
       env:
