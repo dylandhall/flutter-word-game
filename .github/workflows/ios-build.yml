@@ -1,0 +1,42 @@
+name: Build iOS app
+
+on:
+  push:
+    branches:
+      - try-ios-build
+
+jobs:
+  ios-build:
+    runs-on: macos-latest
+    needs: build
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.22.2' # Set this to the desired Flutter version
+
+    - name: Install dependencies
+      run: flutter pub get
+      working-directory: ${{ github.workspace }}
+
+    - name: Set up Xcode
+      run: sudo xcode-select -s /Applications/Xcode_12.5.app/Contents/Developer
+      shell: bash
+
+    - name: Build iOS app
+      run: flutter build ios --release --no-codesign
+      working-directory: ${{ github.workspace }}
+
+    - name: Compress build output
+      run: zip -r ${{ runner.temp }}/ios-build.zip build/ios/iphoneos/Runner.app
+      working-directory: ${{ github.workspace }}
+
+    - name: Upload iOS build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: ios-binary
+        path: ${{ runner.temp }}/ios-build.zip
