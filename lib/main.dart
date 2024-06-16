@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:word_flower/game_state_manager.dart';
+import 'package:word_flower/word_list_widget.dart';
 
 
 void main() {
@@ -62,6 +63,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   late Animation<double> _offsetAnimation;
   late int _repeatCount = 0;
   late FocusNode _focusNode;
+  final incorrectWordNotifier = ValueNotifier<String?>(null);
   PageState _pageState = PageState.playing;
   bool _isDarkMode = MyApp.themeNotifier.value == ThemeMode.dark;
 
@@ -236,7 +238,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     }
 
     const boldStyle = TextStyle(fontWeight: FontWeight.bold);
-    const wordsStyle = TextStyle(fontSize: 16);
     const titleStyle = TextStyle(fontSize: 20);
 
     yield const Padding(padding: EdgeInsets.only(top: 18),
@@ -246,8 +247,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
     yield Padding(
       padding: edgeInsets,
-      child: Text(gameState.obtainedWords.join(" — "), style: wordsStyle,
-          textAlign: TextAlign.center),
+      child: WordListWidget(gameState.obtainedWords, incorrectWordNotifier)
     );
 
     var info = (gameState.isReviewed)
@@ -524,13 +524,20 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   void onKeyEvent(KeyEvent k) {
     if (k is! KeyDownEvent) return;
     final gameState = widget.gameStateManager;
-    if (k.logicalKey == LogicalKeyboardKey.enter) {
-      attemptLettersAndAnimate(gameState);
-      return;
-    }
-    if (k.logicalKey == LogicalKeyboardKey.backspace) {
-      gameState.backspace();
-      return;
+
+    switch (k.logicalKey) {
+      case LogicalKeyboardKey.enter:
+        attemptLettersAndAnimate(gameState);
+        return;
+      case LogicalKeyboardKey.backspace:
+        gameState.backspace();
+        return;
+      case LogicalKeyboardKey.backspace:
+        gameState.backspace();
+        return;
+      case LogicalKeyboardKey.delete:
+        gameState.clearLetters();
+        return;
     }
     if (k.character == null || !(k.character == gameState.centerLetter || (gameState.lettersToShow.any((l) => k.character!.toLowerCase() == l)))) {
       return;
@@ -540,14 +547,23 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
   void attemptLettersAndAnimate(GameStateManager gameState) {
     if (!gameState.isValidToAttempt) return;
+
+    if (gameState.obtainedWords.contains(gameState.lettersToAttempt)){
+      incorrectWordNotifier.value = gameState.lettersToAttempt;
+      startIncorrectAnim();
+      return;
+    }
+
     var res = gameState.attemptLetters();
     if (res) return;
-    setState(() {
+    startIncorrectAnim();
+  }
+
+  void startIncorrectAnim() {
       // animate the shake of the input fields
-      _repeatCount = 0; // Reset the repeat count before starting the animation
-      _controller.reset();
-      _controller.forward();
-    });
+    _repeatCount = 0; // Reset the repeat count before starting the animation
+    _controller.reset();
+    _controller.forward();
   }
 }
 
