@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 
 import 'package:word_flower/game_state_manager.dart';
 import 'package:word_flower/wiktionary.dart';
@@ -68,18 +67,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
   final incorrectWordNotifier = ValueNotifier<String?>(null);
   PageState _pageState = PageState.playing;
   bool _isDarkMode = MyApp.themeNotifier.value == ThemeMode.dark;
+  OverlayEntry? _overlayEntry;
+  final DefinitionLookupState _lookupState = DefinitionLookupState();
 
   _MyHomePageState();
-
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    _controller.dispose();
-    // not required, just testing
-    _offsetAnimation.removeStatusListener(statusListener);
-    MyApp.themeNotifier.removeListener(themeUpdate);
-    super.dispose();
-  }
 
 
   @override
@@ -103,8 +94,68 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
     MyApp.themeNotifier.addListener(themeUpdate);
     _isDarkMode = MyApp.themeNotifier.value == ThemeMode.dark;
+    _lookupState.addListener(_overlayListener);
     widget.gameStateManager.initLoad();
   }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    _controller.dispose();
+    // not required, just testing
+    _offsetAnimation.removeStatusListener(statusListener);
+    MyApp.themeNotifier.removeListener(themeUpdate);
+    _lookupState.removeListener(_overlayListener);
+    _lookupState.dispose();
+    super.dispose();
+  }
+
+
+  void _overlayListener(){
+    _showOverlay(context, _lookupState);
+  }
+
+  void _showOverlay(BuildContext context, DefinitionLookupState definition) {
+    if (_overlayEntry != null ) {
+      _overlayEntry!.remove();
+      _overlayEntry = null;
+    }
+
+    if (definition.word == null) {
+      return;
+    }
+
+    Navigator.of(context).overlay!.insert(_overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        child: Material(
+          color: Colors.transparent,
+          child: GestureDetector(
+            onTap: _dismissOverlay,
+            child: Container(
+              color: Colors.black87,
+              child: SingleChildScrollView(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(80),
+                    child: Text(definition.toString(), style: const TextStyle(color: Colors.white70, fontSize: 14),),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ));
+  }
+
+  _dismissOverlay() {
+    _lookupState.dismissDefinition();
+  }
+
 
   void themeUpdate() {
     _isDarkMode = MyApp.themeNotifier.value == ThemeMode.dark;
@@ -198,34 +249,49 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         ));
   }
 
-  static GridView getGridView(List<String> allWords, List<String> obtainedWords, bool isDarkMode) {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: allWords.length,
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 230,
-        mainAxisSpacing: 2,
-        childAspectRatio: 6,
-        crossAxisSpacing: 2,
+  Widget getGridView(List<String> allWords, List<String> obtainedWords, bool isDarkMode) {
+    return Padding(
+      padding: const EdgeInsets.all(8),
+      child:
+      GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: allWords.length,
+        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+          maxCrossAxisExtent: 230,
+          mainAxisSpacing: 0,
+          childAspectRatio: 6,
+          crossAxisSpacing: 0,
+        ),
+        itemBuilder: (context, index) {
+          var isFound = obtainedWords.contains(allWords[index]);
+          return
+              Align(
+                alignment: Alignment.centerLeft,
+                child: InkWell(
+                  onTap: () => _lookupState.loadDefinition(allWords[index]),
+                  //titleAlignment: ListTileTitleAlignment.top,
+                  child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Icon(
+                      isFound
+                          ? CupertinoIcons.checkmark_seal_fill
+                          : CupertinoIcons.xmark_seal_fill,
+                      color: isFound ? Colors.green : isDarkMode
+                          ? Colors.white30
+                          : Colors.black38,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left:8),
+                      child: Text(allWords[index], textAlign: TextAlign.start)
+                    )],
+                  ),
+                ),
+              );
+        },
       ),
-      itemBuilder: (context, index) {
-        var isFound = obtainedWords.contains(allWords[index]);
-        return
-            ListTile(
-              onTap: () async { print(await WiktionaryApi.getDefinition(allWords[index])); },
-              //titleAlignment: ListTileTitleAlignment.top,
-              leading: Icon(
-                isFound
-                    ? CupertinoIcons.checkmark_seal_fill
-                    : CupertinoIcons.xmark_seal_fill,
-                color: isFound ? Colors.green : isDarkMode
-                    ? Colors.white30
-                    : Colors.black38,
-              ),
-              title: Text(allWords[index], textAlign: TextAlign.left, textHeightBehavior: const TextHeightBehavior(leadingDistribution: TextLeadingDistribution.even),)
-            );
-      },
     );
   }
 
