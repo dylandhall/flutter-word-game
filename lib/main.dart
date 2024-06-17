@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 
 import 'package:word_flower/game_state_manager.dart';
+import 'package:word_flower/wiktionary.dart';
 import 'package:word_flower/word_list_widget.dart';
 
 
@@ -210,8 +212,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       itemBuilder: (context, index) {
         var isFound = obtainedWords.contains(allWords[index]);
         return
-          Center(
-            child: ListTile(
+            ListTile(
+              onTap: () async { print(await WiktionaryApi.getDefinition(allWords[index])); },
+              //titleAlignment: ListTileTitleAlignment.top,
               leading: Icon(
                 isFound
                     ? CupertinoIcons.checkmark_seal_fill
@@ -220,9 +223,8 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                     ? Colors.white30
                     : Colors.black38,
               ),
-              title: Text(allWords[index]),
-            ),
-          );
+              title: Text(allWords[index], textAlign: TextAlign.left, textHeightBehavior: const TextHeightBehavior(leadingDistribution: TextLeadingDistribution.even),)
+            );
       },
     );
   }
