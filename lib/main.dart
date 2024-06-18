@@ -258,7 +258,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         physics: const NeverScrollableScrollPhysics(),
         itemCount: allWords.length,
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 230,
+          maxCrossAxisExtent: 210,
           mainAxisSpacing: 0,
           childAspectRatio: 6,
           crossAxisSpacing: 0,
@@ -266,27 +266,30 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         itemBuilder: (context, index) {
           var isFound = obtainedWords.contains(allWords[index]);
           return
-              Align(
-                alignment: Alignment.centerLeft,
-                child: InkWell(
-                  onTap: () => _lookupState.loadDefinition(allWords[index]),
-                  //titleAlignment: ListTileTitleAlignment.top,
-                  child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(
-                      isFound
-                          ? CupertinoIcons.checkmark_seal_fill
-                          : CupertinoIcons.xmark_seal_fill,
-                      color: isFound ? Colors.green : isDarkMode
-                          ? Colors.white30
-                          : Colors.black38,
+              Padding(
+                padding: const EdgeInsets.only(left:8),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: InkWell(
+                    onTap: () => _lookupState.loadDefinition(allWords[index]),
+                    //titleAlignment: ListTileTitleAlignment.top,
+                    child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Icon(
+                        isFound
+                            ? CupertinoIcons.checkmark_seal_fill
+                            : CupertinoIcons.xmark_seal_fill,
+                        color: isFound ? Colors.green : isDarkMode
+                            ? Colors.white30
+                            : Colors.black38,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left:8),
+                        child: Text(allWords[index], textAlign: TextAlign.start)
+                      )],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(left:8),
-                      child: Text(allWords[index], textAlign: TextAlign.start)
-                    )],
                   ),
                 ),
               );
@@ -295,6 +298,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     );
   }
 
+  static const String _gameKey = 'game-panel';
 
   Iterable<Widget> getAllPlayingWidgets(ThemeData theme, GameStateManager gameState) sync* {
     if (gameState.isLoading) {
@@ -324,19 +328,25 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         ? ' (Practice)'
         : '';
 
-    yield Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Text('Score: ${gameState.score} of a possible ${(gameState.possibleScore)} $info', style: boldStyle)
+    yield RepaintBoundary(
+      key: const ValueKey(_gameKey),
+      child: Column(
+        children:[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text('Score: ${gameState.score} of a possible ${(gameState.possibleScore)} $info', style: boldStyle)
+          ),
+          Padding(
+            padding: edgeInsets,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: getLetterButtonWidgets(theme, gameState).toList(),
+            )
+          )]
+      ),
     );
-
-    yield Padding(
-        padding: edgeInsets,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: getLetterButtonWidgets(theme, gameState).toList(),
-        ));
 
     var buttonColor = theme.floatingActionButtonTheme.foregroundColor ??
         theme.colorScheme.primary;

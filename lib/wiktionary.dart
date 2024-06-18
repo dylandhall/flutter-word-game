@@ -33,7 +33,10 @@ class DefinitionLookupState extends ChangeNotifier {
   Future<void> _openInNewTab(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)){
-      await launchUrl(uri, webOnlyWindowName: '_blank',);
+      final res = await launchUrl(uri, webOnlyWindowName: '_blank',);
+      if (!res){
+        print('problem launching url $url');
+      }
     }
     dismissDefinition();
   }
@@ -83,8 +86,9 @@ class DefinitionLookupState extends ChangeNotifier {
     }
   }
 
-  static String _getUrl(String word) => 'https://en.wiktionary.org/w/api.php?action=query&format=json&prop=extracts&titles=$word&formatversion=latest&exchars=500&explaintext=1';
-  static String _getWebUrl(String word) => 'https://en.wiktionary.org/wiki/$word';
+  static String _getUrl(String word) => 'https://en.wiktionary.org/w/api.php?action=query&format=json&prop=extracts&titles=$word&formatversion=latest&exchars=1000&explaintext=1';
+  // using mobile view as it's much cleaner, even on desktop
+  static String _getWebUrl(String word) => 'https://en.m.wiktionary.org/wiki/$word';
 
   void dismissDefinition() {
     if (isRunning) {
