@@ -5,14 +5,16 @@ import 'package:word_flower/played_game.dart';
 import 'package:word_flower/player.dart';
 
 import 'game.dart';
-import 'main.dart';
 
 class GameStateManager extends ChangeNotifier {
   Game? _gameState;
   late final Box<PlayedGame> _box;
   late final Box<Player> _playerBox;
   late final Player _player;
+  final ValueNotifier<ThemeMode> themeNotifier;
   String lettersToAttempt = '';
+
+  GameStateManager({required this.themeNotifier});
 
   List<String> get lettersToShow => _gameState?.lettersToShow??[];
   String get centerLetter => _gameState?.centerLetter??'';
@@ -26,41 +28,51 @@ class GameStateManager extends ChangeNotifier {
 
   bool isLoading = true;
 
-  void shuffleAndSetLetters(){
-    if (_gameState==null) return;
-    _gameState!.shuffleAndSetLetters();
-    notifyListeners();
-  }
 
   bool get isCurrentDailyGame {
     final dailySeed = getDailySeed();
     return dailySeed == _gameState?.seed;
   }
 
-  void setAsReviewed(){
-    if (_gameState==null) return;
-    _gameState!.setAsReviewed();
-    notifyListeners();
-  }
+  Future<void> initLoad() async {
+    await Hive.initFlutter();
+    Hive.registerAdapter(PlayedGameAdapter());
+    Hive.registerAdapter(PlayerAdapter());
 
-  void clearLetters() {
-    if (lettersToAttempt.isEmpty) return;
-    lettersToAttempt = '';
-    notifyListeners();
-  }
+    final futures = [
+      Hive.openBox<PlayedGame>('gamesBox'),
+      Hive.openBox<Player>('playerBox'),
+    ];
 
-  int getDailySeed() {
-    final dateSeed = DateTime.now().toUtc();
-    return (DateTime
-        .utc(dateSeed.year, dateSeed.month, dateSeed.day)
-        .millisecondsSinceEpoch / 10000).floor();
+    final results = await Future.wait(futures);
+
+    _box = results[0] as Box<PlayedGame>;
+    _playerBox = results[1] as Box<Player>;
+
+    final currentTheme = themeNotifier.value;
+    final isCurrentlyDarkMode = currentTheme == ThemeMode.dark;
+    if(_playerBox.isNotEmpty){
+      _player = _playerBox.values.first;
+      if (_player.isDarkMode != isCurrentlyDarkMode){
+        themeNotifier.value = _player.isDarkMode ? ThemeMode.dark : ThemeMode.light;
+      }
+    } else {
+      _player = Player(0, 0, 0, isCurrentlyDarkMode);
+      _playerBox.add(_player);
+      _player.save();
+    }
+
+    themeNotifier.addListener(themeSave);
+
+    await loadDailyGame();
+    notifyListeners();
   }
 
   @override
   void dispose() {
     _box.close();
     _playerBox.close();
-    MyApp.themeNotifier.removeListener(themeSave);
+    themeNotifier.removeListener(themeSave);
     super.dispose();
   }
 
@@ -95,46 +107,37 @@ class GameStateManager extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> initLoad() async {
-    await Hive.initFlutter();
-    Hive.registerAdapter(PlayedGameAdapter());
-    Hive.registerAdapter(PlayerAdapter());
-
-    final futures = [
-      Hive.openBox<PlayedGame>('gamesBox'),
-      Hive.openBox<Player>('playerBox'),
-    ];
-
-    final results = await Future.wait(futures);
-
-    _box = results[0] as Box<PlayedGame>;
-    _playerBox = results[1] as Box<Player>;
-
-    final currentTheme = MyApp.themeNotifier.value;
-    final isCurrentlyDarkMode = currentTheme == ThemeMode.dark;
-    if(_playerBox.isNotEmpty){
-      _player = _playerBox.values.first;
-      if (_player.isDarkMode != isCurrentlyDarkMode){
-        MyApp.themeNotifier.value = _player.isDarkMode ? ThemeMode.dark : ThemeMode.light;
-      }
-    } else {
-      _player = Player(0, 0, 0, isCurrentlyDarkMode);
-      _playerBox.add(_player);
-      _player.save();
-    }
-
-    MyApp.themeNotifier.addListener(themeSave);
-
-    await loadDailyGame();
+  void setAsReviewed(){
+    if (_gameState==null) return;
+    _gameState!.setAsReviewed();
     notifyListeners();
   }
 
+  void clearLetters() {
+    if (lettersToAttempt.isEmpty) return;
+    lettersToAttempt = '';
+    notifyListeners();
+  }
+
+  static int getDailySeed() {
+    final dateSeed = DateTime.now().toUtc();
+    return (DateTime
+        .utc(dateSeed.year, dateSeed.month, dateSeed.day)
+        .millisecondsSinceEpoch / 10000).floor();
+  }
+
   void themeSave() {
-    final isDarkMode = MyApp.themeNotifier.value == ThemeMode.dark;
+    final isDarkMode = themeNotifier.value == ThemeMode.dark;
     if (_player.isDarkMode == isDarkMode) return;
     _player.isDarkMode = isDarkMode;
     // i don't like this isn't awaited?
     savePlayer(_player);
+  }
+
+  void shuffleAndSetLetters(){
+    if (_gameState==null) return;
+    _gameState!.shuffleAndSetLetters();
+    notifyListeners();
   }
 
   static Future<void> savePlayer(Player player) async {
@@ -152,6 +155,8 @@ class GameStateManager extends ChangeNotifier {
   }
 
   bool get isValidToAttempt => ((lettersToAttempt.length) > 3 && !(_gameState?.isReviewed??false));
+  bool get isAllLetters => lettersToAttempt.length > lettersToShow.length && lettersToAttempt.contains(centerLetter) && !lettersToShow.any((l) => !lettersToAttempt.contains(l));
+
 
   bool attemptLetters() {
     if (!isValidToAttempt) return false;

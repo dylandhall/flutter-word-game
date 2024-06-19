@@ -1,3 +1,4 @@
+import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,15 +9,16 @@ import 'package:word_flower/word_list_widget.dart';
 
 
 void main() {
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 
 class MyApp extends StatelessWidget {
-  static final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
-  static final GameStateManager _gameStateManager = GameStateManager();
-
-  const MyApp({super.key});
+  final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
+  late final GameStateManager gameStateManager;
+  MyApp({super.key}){
+    gameStateManager = GameStateManager(themeNotifier: themeNotifier);
+  }
 
   final int state = 0;
 
@@ -36,7 +38,7 @@ class MyApp extends StatelessWidget {
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.green, brightness: Brightness.dark),
             useMaterial3: true
           ),
-          home: MyHomePage(title: 'Word Finder 3000', gameStateManager: _gameStateManager),
+          home: MyHomePage(title: 'Word Finder 3000', themeNotifier: themeNotifier, gameStateManager: gameStateManager,),
       )
     );
   }
@@ -50,9 +52,10 @@ class MyApp extends StatelessWidget {
 // class _ReviewPageState ex
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title, required this.gameStateManager});
+  const MyHomePage({super.key, required this.title, required this.themeNotifier, required this.gameStateManager});
 
   final String title;
+  final ValueNotifier<ThemeMode> themeNotifier;
   final GameStateManager gameStateManager;
 
   @override
@@ -60,22 +63,23 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _offsetAnimation;
+  late final AnimationController _controller;
+  late final Animation<double> _offsetAnimation;
+  final ConfettiController _confettiController = ConfettiController(duration: const Duration( seconds: 1));
   late int _repeatCount = 0;
-  late FocusNode _focusNode;
+  late final FocusNode _focusNode;
   final incorrectWordNotifier = ValueNotifier<String?>(null);
   PageState _pageState = PageState.playing;
-  bool _isDarkMode = MyApp.themeNotifier.value == ThemeMode.dark;
+  late bool _isDarkMode = false;
   OverlayEntry? _overlayEntry;
   final DefinitionLookupState _lookupState = DefinitionLookupState();
 
   _MyHomePageState();
 
-
   @override
   void initState() {
     super.initState();
+    _isDarkMode = widget.themeNotifier.value == ThemeMode.dark;
     _focusNode = FocusNode();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
@@ -92,8 +96,9 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       ),
     )..addStatusListener(statusListener);
 
-    MyApp.themeNotifier.addListener(themeUpdate);
-    _isDarkMode = MyApp.themeNotifier.value == ThemeMode.dark;
+    widget.themeNotifier.addListener(themeUpdate);
+
+    _isDarkMode = widget.themeNotifier.value == ThemeMode.dark;
     _lookupState.addListener(_overlayListener);
     widget.gameStateManager.initLoad();
   }
@@ -104,9 +109,14 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     _controller.dispose();
     // not required, just testing
     _offsetAnimation.removeStatusListener(statusListener);
-    MyApp.themeNotifier.removeListener(themeUpdate);
+    widget.themeNotifier.removeListener(themeUpdate);
     _lookupState.removeListener(_overlayListener);
     _lookupState.dispose();
+    if (_overlayEntry != null) {
+      _overlayEntry!.remove();
+      _overlayEntry = null;
+    }
+    _confettiController.dispose();
     super.dispose();
   }
 
@@ -158,7 +168,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
 
   void themeUpdate() {
-    _isDarkMode = MyApp.themeNotifier.value == ThemeMode.dark;
+    _isDarkMode = widget.themeNotifier.value == ThemeMode.dark;
   }
 
   void statusListener(AnimationStatus status) {
@@ -327,6 +337,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         : (gameState.isPractice)
         ? ' (Practice)'
         : '';
+
+    yield ConfettiWidget(
+      confettiController: _confettiController,
+      blastDirectionality: BlastDirectionality.explosive,
+      numberOfParticles: 20,
+    );
+
 
     yield RepaintBoundary(
       key: const ValueKey(_gameKey),
@@ -555,7 +572,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                 Switch(
                   value: _isDarkMode,
                   onChanged: (value) {
-                    MyApp.themeNotifier.value = value ? ThemeMode.dark : ThemeMode.light;
+                    widget.themeNotifier.value = value ? ThemeMode.dark : ThemeMode.light;
                     _isDarkMode = value;
                   },
                 ),
@@ -632,8 +649,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       return;
     }
 
+    var isAllLetters = gameState.isAllLetters;
     var res = gameState.attemptLetters();
-    if (res) return;
+    if (res) {
+      if (isAllLetters) _confettiController.play();
+      return;
+    }
     startIncorrectAnim();
   }
 
