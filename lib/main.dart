@@ -1,3 +1,4 @@
+import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -62,10 +63,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _offsetAnimation;
+  late final AnimationController _controller;
+  late final Animation<double> _offsetAnimation;
+  final ConfettiController _confettiController = ConfettiController(duration: const Duration( seconds: 1));
   late int _repeatCount = 0;
-  late FocusNode _focusNode;
+  late final FocusNode _focusNode;
   final incorrectWordNotifier = ValueNotifier<String?>(null);
   PageState _pageState = PageState.playing;
   late bool _isDarkMode = false;
@@ -96,7 +98,6 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
 
     widget.themeNotifier.addListener(themeUpdate);
 
-
     _isDarkMode = widget.themeNotifier.value == ThemeMode.dark;
     _lookupState.addListener(_overlayListener);
     widget.gameStateManager.initLoad();
@@ -115,6 +116,7 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       _overlayEntry!.remove();
       _overlayEntry = null;
     }
+    _confettiController.dispose();
     super.dispose();
   }
 
@@ -335,6 +337,13 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
         : (gameState.isPractice)
         ? ' (Practice)'
         : '';
+
+    yield ConfettiWidget(
+      confettiController: _confettiController,
+      blastDirectionality: BlastDirectionality.explosive,
+      numberOfParticles: 20,
+    );
+
 
     yield RepaintBoundary(
       key: const ValueKey(_gameKey),
@@ -640,8 +649,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       return;
     }
 
+    var isAllLetters = gameState.isAllLetters;
     var res = gameState.attemptLetters();
-    if (res) return;
+    if (res) {
+      if (isAllLetters) _confettiController.play();
+      return;
+    }
     startIncorrectAnim();
   }
 

@@ -5,7 +5,6 @@ import 'package:word_flower/played_game.dart';
 import 'package:word_flower/player.dart';
 
 import 'game.dart';
-import 'main.dart';
 
 class GameStateManager extends ChangeNotifier {
   Game? _gameState;
@@ -34,7 +33,6 @@ class GameStateManager extends ChangeNotifier {
     final dailySeed = getDailySeed();
     return dailySeed == _gameState?.seed;
   }
-
 
   Future<void> initLoad() async {
     await Hive.initFlutter();
@@ -157,6 +155,8 @@ class GameStateManager extends ChangeNotifier {
   }
 
   bool get isValidToAttempt => ((lettersToAttempt.length) > 3 && !(_gameState?.isReviewed??false));
+  bool get isAllLetters => lettersToAttempt.length > lettersToShow.length && lettersToAttempt.contains(centerLetter) && !lettersToShow.any((l) => !lettersToAttempt.contains(l));
+
 
   bool attemptLetters() {
     if (!isValidToAttempt) return false;
