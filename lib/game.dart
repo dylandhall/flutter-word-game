@@ -114,9 +114,11 @@ class Game {
       otherLetters = List.filled(6, 'a');
 
       int index = 0;
+
+      // small hint - if we don't nudge it to get at least one vowel, we'll have to
+      // regenerate additional times to get a working set of letters
       if (!vowels.contains(centerLetter)) {
-        otherLetters[index++] =
-        vowels[(r.nextDouble() * (vowels.length - 1)).round()];
+        otherLetters[index++] = vowels[(r.nextDouble() * (vowels.length - 1)).round()];
       }
 
       for (; index < 6; index++) {
@@ -126,7 +128,7 @@ class Game {
         } while (otherLetters[index] == centerLetter || (index > 0 && prevLetters.contains(otherLetters[index])));
       }
       includedCommonWords = getMatchingWords(commonDictionary.words, otherLetters, centerLetter);
-    } while (includedCommonWords.length < 20
+    } while (includedCommonWords.length < 35
       //|| otherLetters.any((l) => !includedCommonWords.any((w) => w.contains(l))) // all letters used
       || !includedCommonWords.any((w) => w.contains(centerLetter) && !otherLetters.any((l) => !w.contains(l))) // at least one word with all letters
     );
