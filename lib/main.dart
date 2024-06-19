@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -203,6 +204,17 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
       yield const Text('loading..');
       return;
     }
+
+    yield ConfettiWidget(
+      confettiController: _confettiController,
+      blastDirectionality: BlastDirectionality.directional,
+      blastDirection: pi / 2,
+      maxBlastForce: 5,
+      minBlastForce: 2,
+      emissionFrequency: 0.05,
+      numberOfParticles: 20,
+      gravity: 0.1,
+    );
 
     const bold = TextStyle(fontWeight: FontWeight.bold);
     const big = TextStyle(fontSize: 22);
@@ -472,6 +484,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                       setState(() {
                         gameState.setAsReviewed();
                         _pageState = PageState.reviewing;
+                        if (gameState.possibleScore <= gameState.score) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) => _confettiController.play());
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Great score!')));
+                        }
                       });
                     },
                     child: const Text('OK'),
@@ -652,7 +668,10 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
     var isAllLetters = gameState.isAllLetters;
     var res = gameState.attemptLetters();
     if (res) {
-      if (isAllLetters) _confettiController.play();
+      if (isAllLetters) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Center(child: Text('Every letter! 👖')), duration: Duration(seconds: 2),));
+        _confettiController.play();
+      }
       return;
     }
     startIncorrectAnim();
