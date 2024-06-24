@@ -13,6 +13,7 @@ class GameStateManager extends ChangeNotifier {
   late final Player _player;
   final ValueNotifier<ThemeMode> themeNotifier;
   String lettersToAttempt = '';
+  int hintLevel = 0;
 
   GameStateManager({required this.themeNotifier});
 
