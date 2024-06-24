@@ -175,14 +175,18 @@ class _MainGamePageState extends State<MainGamePage> with SingleTickerProviderSt
     yield HintPage(themeNotifier: widget.themeNotifier, gameStateManager: widget.gameStateManager, hintLevelNotifier: _hintLevelNotifier,);
 
 
-    if (_hintLevelNotifier.value<5) {
-      yield Padding(
-        padding: const EdgeInsets.all(12),
-        child:
-        TextButton(
-          onPressed: () => _hintLevelNotifier.value++,
-          child: const Text('Next hint'),
-        ),
+    if (_hintLevelNotifier.value<4) {
+      yield ValueListenableBuilder(
+        valueListenable: _hintLevelNotifier,
+        child: Padding(
+            padding: const EdgeInsets.all(12),
+            child:
+            TextButton(
+              onPressed: () => _hintLevelNotifier.value++,
+              child: const Text('Next hint'),
+            ),
+          ),
+        builder: (context, value, child) => (value < 4 ? child! : const Text('')),
       );
     }
 
