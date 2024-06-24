@@ -15,6 +15,11 @@ class GameStateManager extends ChangeNotifier {
   String lettersToAttempt = '';
   int hintLevel = 0;
 
+  bool isSortAlphabetical = false;
+  void toggleSort() {
+    isSortAlphabetical = !isSortAlphabetical;
+  }
+
   GameStateManager({required this.themeNotifier});
 
   List<String> get lettersToShow => _gameState?.lettersToShow??[];
@@ -23,7 +28,11 @@ class GameStateManager extends ChangeNotifier {
   int get possibleScore => _gameState?.possibleScore??0;
   List<String> get commonWords => _gameState?.commonWords??[];
   List<String> get validWords => _gameState?.validWords??[];
-  List<String> get obtainedWords => _gameState?.obtainedWords??[];
+
+  List<String> get obtainedWords => isSortAlphabetical
+      ? _gameState?.alphaObtainedWords??[]
+      : _gameState?.obtainedWords??[];
+
   bool get isPractice => _gameState?.isPractice??false;
   bool get isReviewed => _gameState?.isReviewed??false;
 

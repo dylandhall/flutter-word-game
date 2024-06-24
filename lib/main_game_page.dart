@@ -345,7 +345,16 @@ class _MainGamePageState extends State<MainGamePage> with SingleTickerProviderSt
 
     yield Padding(
         padding: edgeInsets,
-        child: WordListWidget(gameState.obtainedWords, incorrectWordNotifier)
+        child: GestureDetector(
+          onTap: () {
+            setState(() {
+              widget.gameStateManager.toggleSort();
+            });
+          },
+          child: WordListWidget(gameState.obtainedWords, incorrectWordNotifier),
+        )
+
+
     );
 
     var info = (gameState.isReviewed)

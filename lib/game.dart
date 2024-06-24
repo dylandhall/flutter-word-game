@@ -28,6 +28,17 @@ class Game {
       playedGame.save();
     }
   }
+
+  List<String>? _alphaObtainedWords;
+  List<String> get alphaObtainedWords {
+    if (_alphaObtainedWords != null) return _alphaObtainedWords!;
+
+    _alphaObtainedWords = obtainedWords.toList();
+    _alphaObtainedWords!.sort((a,b) => a.compareTo(b));
+
+    return _alphaObtainedWords!;
+  }
+
   get score => obtainedWords.isNotEmpty
     ? obtainedWords.map((w) => w.length).reduce((acc,v) => acc+v)
     : 0;
@@ -46,6 +57,7 @@ class Game {
   bool checkLetters(String letters) {
     if (!letters.contains(centerLetter)) return false;
     if (validWords.contains(letters) && !obtainedWords.contains(letters)){
+      _alphaObtainedWords = null;
       obtainedWords.add(letters);
       playedGame.obtainedWords = obtainedWords;
       playedGame.save();

@@ -1,12 +1,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:word_flower/wiktionary.dart';
 
 class WordListWidget extends StatelessWidget {
   final List<String> words;
   final ValueNotifier<String?> incorrectWordNotifier;
-
 
   const WordListWidget(this.words, this.incorrectWordNotifier, {super.key});
 
