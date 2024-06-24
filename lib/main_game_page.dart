@@ -1,5 +1,4 @@
 
-import 'dart:ffi';
 import 'dart:math';
 
 import 'package:confetti/confetti.dart';
@@ -208,16 +207,18 @@ class _MainGamePageState extends State<MainGamePage> with SingleTickerProviderSt
           ? 20
           : 0;
 
-    yield ConfettiWidget(
-      confettiController: _confettiController,
-      blastDirectionality: BlastDirectionality.directional,
-      blastDirection: pi / 2,
-      maxBlastForce: 5,
-      minBlastForce: 2,
-      emissionFrequency: 0.05,
-      numberOfParticles: numParticles,
-      gravity: 0.1,
-    );
+    if (numParticles>0) {
+      yield ConfettiWidget(
+        confettiController: _confettiController,
+        blastDirectionality: BlastDirectionality.directional,
+        blastDirection: pi / 2,
+        maxBlastForce: 5,
+        minBlastForce: 2,
+        emissionFrequency: 0.05,
+        numberOfParticles: numParticles,
+        gravity: 0.1,
+      );
+    }
 
     const bold = TextStyle(fontWeight: FontWeight.bold);
     const big = TextStyle(fontSize: 22);
