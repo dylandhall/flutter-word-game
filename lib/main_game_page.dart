@@ -656,6 +656,7 @@ class _MainGamePageState extends State<MainGamePage> with SingleTickerProviderSt
                 onPressed: () async {
                   setState(() {
                     _pageState = PageState.playing;
+                    _hintLevelNotifier.value = 1;
                   });
                   await widget.gameStateManager.loadPracticeGame();
                 },
