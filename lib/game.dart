@@ -69,6 +69,7 @@ class Game {
   static Future<Game> createGame(int seed, Box<PlayedGame>? box, bool isPractice) async {
     var largeDictionaryFuture = StoredDictionary.createDictionary('assets/uncommon-long-words.txt');
     var commonDictionary = await StoredDictionary.createDictionary('assets/common-long-words.txt');
+    var veryCommonDictionary = await StoredDictionary.createDictionary('assets/very-common-long-words.txt');
 
     const practiceGameKey = 101;
 
@@ -120,6 +121,7 @@ class Game {
     var centerLetter = '';
     var otherLetters = List.filled(6, 'a');
     var includedCommonWords = List<String>.empty();
+    int veryCommonWordCount = 0;
     do {
       centerLetter = letters[(r.nextDouble() * 25).round()];
 
@@ -140,8 +142,10 @@ class Game {
         } while (otherLetters[index] == centerLetter || (index > 0 && prevLetters.contains(otherLetters[index])));
       }
       includedCommonWords = getMatchingWords(commonDictionary.words, otherLetters, centerLetter);
-    } while (includedCommonWords.length < 35
-      //|| otherLetters.any((l) => !includedCommonWords.any((w) => w.contains(l))) // all letters used
+      veryCommonWordCount = getMatchingWords(veryCommonDictionary.words, otherLetters, centerLetter).length;
+    } while (
+      veryCommonWordCount < 10
+      || includedCommonWords.length <  25
       || !includedCommonWords.any((w) => w.contains(centerLetter) && !otherLetters.any((l) => !w.contains(l))) // at least one word with all letters
     );
 
