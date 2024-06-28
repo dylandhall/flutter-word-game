@@ -1,6 +1,5 @@
 
 import 'dart:math';
-
 import 'package:confetti/confetti.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -257,7 +256,7 @@ class _MainGamePageState extends State<MainGamePage> with SingleTickerProviderSt
         padding: const EdgeInsets.all(12),
         child: Text("Common words (included in max score) - $commonPercent%", style: big,));
 
-    yield getGridView(commonWords, gameState.obtainedWords, _isDarkMode);
+    yield getGridView(commonWords, gameState.obtainedWords, _isDarkMode, _lookupState);
 
     final uncommonPercent = ((uncommonWords.where((w) => gameState.obtainedWords.contains(w)).length)
         / uncommonWords.length * 100).round();
@@ -266,7 +265,7 @@ class _MainGamePageState extends State<MainGamePage> with SingleTickerProviderSt
         padding: const EdgeInsets.fromLTRB(12, 50, 12, 12),
         child: Text("Uncommon words - $uncommonPercent%", style: big,));
 
-    yield getGridView(uncommonWords, gameState.obtainedWords, _isDarkMode);
+    yield getGridView(uncommonWords, gameState.obtainedWords, _isDarkMode, _lookupState);
 
     yield Padding(
         padding: const EdgeInsets.all(20),
@@ -279,52 +278,10 @@ class _MainGamePageState extends State<MainGamePage> with SingleTickerProviderSt
         ));
   }
 
-  Widget getGridView(List<String> allWords, List<String> obtainedWords, bool isDarkMode) {
+  static Widget getGridView(List<String> allWords, List<String> obtainedWords, bool isDarkMode, DefinitionLookupState lookupState) {
     return Padding(
       padding: const EdgeInsets.all(8),
-      child:
-      GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: allWords.length,
-        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: 210,
-          mainAxisSpacing: 0,
-          childAspectRatio: 6,
-          crossAxisSpacing: 0,
-        ),
-        itemBuilder: (context, index) {
-          var isFound = obtainedWords.contains(allWords[index]);
-          return
-            Padding(
-              padding: const EdgeInsets.only(left:8),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: InkWell(
-                  onTap: () => _lookupState.loadDefinition(allWords[index]),
-                  //titleAlignment: ListTileTitleAlignment.top,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Icon(
-                        isFound
-                            ? CupertinoIcons.checkmark_seal_fill
-                            : CupertinoIcons.xmark_seal_fill,
-                        color: isFound ? Colors.green : isDarkMode
-                            ? Colors.white30
-                            : Colors.black38,
-                      ),
-                      Padding(
-                          padding: const EdgeInsets.only(left:8),
-                          child: Text(allWords[index], textAlign: TextAlign.start)
-                      )],
-                  ),
-                ),
-              ),
-            );
-        },
-      ),
+      child: ColumnOrderedGrid(allWords: allWords, isDarkMode: isDarkMode, lookupState: lookupState, obtainedWords: obtainedWords,)
     );
   }
 
@@ -725,4 +682,97 @@ enum PageState {
   playing,
   reviewing,
   hint,
+}
+
+
+
+class ColumnOrderedGrid extends StatelessWidget {
+  final List<String> allWords;
+  final bool isDarkMode;
+  final DefinitionLookupState lookupState;
+  final List<String> obtainedWords;
+
+  const ColumnOrderedGrid({super.key, required this.allWords, required this.isDarkMode, required this.lookupState, required this.obtainedWords});
+
+  @override
+  Widget build(BuildContext context) {
+    return
+      LayoutBuilder(
+        builder: (context, constraints) {
+          const columnWidth = 180;
+          var columns = (constraints.maxWidth / columnWidth).floor();
+          if (columns<1) columns = 1;
+          final rows = (allWords.length / columns).ceil();
+
+          final gridWidth = columns * columnWidth.toDouble();
+          return SingleChildScrollView(
+              child: Align(
+              alignment: Alignment.topCenter,
+              child: SizedBox(
+                width: gridWidth,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(columns, (i) =>
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: allWords.skip(i*rows).take(rows).map((w) =>
+                          WordItem(
+                              isFound: obtainedWords.contains(w),
+                              word: w,
+                              isDarkMode: isDarkMode,
+                              lookupState: lookupState)).toList()
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      );
+  }
+}
+
+class WordItem extends StatelessWidget {
+  final bool isFound;
+  final String word;
+  final bool isDarkMode;
+  final DefinitionLookupState lookupState;
+
+  const WordItem({super.key, required this.isFound, required this.word, required this.isDarkMode, required this.lookupState});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 180,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(6, 2, 2, 6),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: InkWell(
+            onTap: () => lookupState.loadDefinition(word),
+            //titleAlignment: ListTileTitleAlignment.top,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Icon(
+                  isFound
+                      ? CupertinoIcons.checkmark_seal_fill
+                      : CupertinoIcons.xmark_seal_fill,
+                  color: isFound ? Colors.green : isDarkMode
+                      ? Colors.white30
+                      : Colors.black38,
+                ),
+                Padding(
+                    padding: const EdgeInsets.only(left:8),
+                    child: Text(word, textAlign: TextAlign.start)
+                )],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
