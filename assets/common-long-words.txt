@@ -39662,8 +39662,6 @@ niggardliness
 niggardly
 niggardlyness
 niggards
-nigger
-niggers
 niggle
 niggled
 niggler
@@ -55275,7 +55273,6 @@ spheroidal
 sphincter
 sphinx
 sphygmomanometer
-spic
 spice
 spiced
 spices
